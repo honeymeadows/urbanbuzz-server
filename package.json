@@ -1,0 +1,32 @@
+{
+  "name": "urban-buzz",
+  "description": "urban-buzz server",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "engines": {
+    "node": ">=16.0.0"
+  },
+  "type": "module",
+  "main": "index.js",
+  "dependencies": {
+    "@paralleldrive/cuid2": "^2.2.2",
+    "axios": "^1.9.0",
+    "cors": "^2.8.5",
+    "dayjs": "^1.11.13",
+    "dotenv": "^16.5.0",
+    "express": "^5.1.0",
+    "firebase-admin": "^13.4.0",
+    "firebase-functions": "^6.3.2",
+    "jsonwebtoken": "^9.0.2",
+    "resend": "^4.5.1",
+    "uuid": "^11.1.0"
+  },
+  "devDependencies": {
+    "eslint": "^8.15.0",
+    "eslint-config-google": "^0.14.0",
+    "firebase-functions-test": "^3.1.0",
+    "nodemon": "^3.1.10"
+  },
+  "private": true
+}
