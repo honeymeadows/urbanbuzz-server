@@ -1,13 +1,10 @@
+import "dotenv/config";
 import firebaseAdminInstance from "firebase-admin";
-
-import adminServiceAccount from "./service-accounts/urbanbuzz-bcfbd-firebase-adminsdk-v491r-55bca99f6e.json" assert { type: "json" };
 
 import { getFirestore } from "firebase-admin/firestore";
 
 export const admin = firebaseAdminInstance.initializeApp({
-  credential: firebaseAdminInstance.credential.cert(
-    JSON.parse(JSON.stringify(adminServiceAccount))
-  ),
+  credential: firebaseAdminInstance.credential.cert(JSON.parse(process.env.URBANBUZZ_SERVICE_KEY)),
   databaseURL: "",
 });
 
