@@ -426,38 +426,44 @@ const validateFirebaseToken = async (firebaseToken) => {
 };
 
 const updateClientProjects = async (clientId, name) => {
-  const updatesRef = admin
-    .firestore()
-    .collection(collectionNames.updates)
-    .where("clientId", "==", clientId);
   const projectRef = admin
     .firestore()
     .collection(collectionNames.projects)
-    .where("clientId", "==", clientId);
+    .where("clientIds", "array-contains", clientId);
   await admin.firestore().runTransaction(async (transaction) => {
-    const updatesSnapshot = await updatesRef.get();
-    const ProjectsSnapshot = await projectRef.get();
-    updatesSnapshot.forEach((updateDoc) => {
-      if (updateDoc.exists) {
-        const updateDocRef = admin
-          .firestore()
-          .collection(collectionNames.updates)
-          .doc(updateDoc.id);
-        const searchKeywords = [
-          ...new Set([
-            ...getArrayFromString(name)
-              .concat(getArrayFromString(name.split(" ")[1] ? name.split(" ")[1] : ""))
-              .concat(getArrayFromString(updateDoc.data().location.address))
-              .concat(getArrayFromString(updateDoc.data().location.city))
-              .concat(getArrayFromString(updateDoc.data().location.country)),
-          ]),
-        ];
-        transaction.update(updateDocRef, {
-          searchKeywords,
-        });
-      }
-    });
-    ProjectsSnapshot.forEach((projectDoc) => {
+    const projectsSnapshot = await projectRef.get();
+    const projectIds = projectsSnapshot.docs.length
+      ? projectsSnapshot.docs.map((ps) => ps.data()?.id)
+      : [];
+
+    if (projectIds?.length > 0) {
+      const updatesSnapshot = await admin
+        .firestore()
+        .collection(collectionNames.updates)
+        .where("projectId", "in", projectIds)
+        .get();
+      updatesSnapshot.forEach((updateDoc) => {
+        if (updateDoc.exists) {
+          const updateDocRef = admin
+            .firestore()
+            .collection(collectionNames.updates)
+            .doc(updateDoc.id);
+          const searchKeywords = [
+            ...new Set([
+              ...getArrayFromString(name)
+                .concat(getArrayFromString(name.split(" ")[1] ? name.split(" ")[1] : ""))
+                .concat(getArrayFromString(updateDoc.data().location.address))
+                .concat(getArrayFromString(updateDoc.data().location.city))
+                .concat(getArrayFromString(updateDoc.data().location.country)),
+            ]),
+          ];
+          transaction.update(updateDocRef, {
+            searchKeywords,
+          });
+        }
+      });
+    }
+    projectsSnapshot.forEach((projectDoc) => {
       if (projectDoc.exists) {
         const projectDocRef = admin
           .firestore()

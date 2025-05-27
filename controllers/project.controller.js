@@ -2,8 +2,8 @@
 // resources
 import { projectRequestTypes } from "../resources/types/requests/project.js";
 // utils
-import { collectionNames, admin, adminInstance } from "../config/firebase.js";
-import { createNotification, createNotifications } from "./notification.controller.js";
+import { collectionNames, admin } from "../config/firebase.js";
+import { createNotifications } from "./notification.controller.js";
 import { getArrayFromString } from "../utils/index.js";
 import { notificationTypes } from "../resources/types/notification.js";
 import {

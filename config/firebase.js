@@ -4,7 +4,7 @@ import firebaseAdminInstance from "firebase-admin";
 import { getFirestore } from "firebase-admin/firestore";
 
 export const admin = firebaseAdminInstance.initializeApp({
-  credential: firebaseAdminInstance.credential.cert(JSON.parse(process.env.URBANBUZZ_SERVICE_KEY)),
+  credential: firebaseAdminInstance.credential.cert(JSON.parse(process.env.FIREBASE_SERVICE_KEY)),
   databaseURL: "",
 });
 

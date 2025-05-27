@@ -18,8 +18,7 @@ import { emailTypes } from "../resources/types/index.js";
 
 export async function getUpdates(req, res) {
   const { updateRequestType } = req.params;
-  const { searchedText, initial, sortField, sortDirection, projectId, clientId, isDeactivated } =
-    req.query;
+  const { searchedText, initial, sortField, sortDirection, projectId } = req.query;
 
   if (!updateRequestType) {
     return res.status(400).json({ message: "Request type is required" });
@@ -170,7 +169,7 @@ export async function getUpdates(req, res) {
 
 export async function createUpdate(req, res) {
   const { updateRequestType } = req.params;
-  const { content, clientId, projectId, updateId, images, emailNotification } = req.body;
+  const { content, projectId, updateId, images, emailNotification } = req.body;
 
   if (!updateRequestType) {
     return res.status(400).json({ message: "Request type is required" });
@@ -351,13 +350,13 @@ export async function createUpdate(req, res) {
         await admin.firestore().collection(collectionNames.projects).doc(update.projectId).get()
       ).data();
 
-      await createNotification({
+      await createNotifications({
         sender: {
           id: adminData?.id,
           name: adminData?.name,
           profileimage: adminData?.profileImage?.url,
         },
-        receiver: { id: project?.clientId },
+        receivers: project?.clientIds,
         project: {
           id: project.id,
           name: project.name,

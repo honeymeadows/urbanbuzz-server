@@ -98,37 +98,24 @@ export async function getCollectionData({
       response = response.map((doc) => {
         const data = doc.data();
         if (collectionName === collectionNames.projects) {
-          if (requestType === projectRequestTypes.clientProjects) {
-            return {
-              id: data.id,
-              adminId: data.adminId,
-              clientId: data.clientId,
-              location: data.location,
-              nickName: data.nickName.client,
-              name: data.name,
-              notes: data.notes,
-              cover: data.cover,
-              statuses: data.statuses,
-              timeline: data.timeline,
-              updated: data.updated.toDate().getTime(),
-              created: data.created.toDate().getTime(),
-            };
-          } else {
-            return {
-              id: data.id,
-              adminId: data.adminId,
-              clientId: data.clientId,
-              location: data.location,
-              nickName: data.nickName.admin,
-              name: data.name,
-              notes: data.notes,
-              cover: data.cover,
-              statuses: data.statuses,
-              timeline: data.timeline,
-              updated: data.updated.toDate().getTime(),
-              created: data.created.toDate().getTime(),
-            };
-          }
+          return {
+            id: data.id,
+            adminId: data.adminId,
+            clientIds: data.clientIds,
+            clientEmail: data.clientEmail,
+            location: data.location,
+            nickName:
+              requestType === projectRequestTypes.clientProjects
+                ? data.nickName.client
+                : data.nickName.admin,
+            name: data.name,
+            notes: data.notes,
+            cover: data.cover,
+            statuses: data.statuses,
+            timeline: data.timeline,
+            updated: data.updated.toDate().getTime(),
+            created: data.created.toDate().getTime(),
+          };
         } else if (collectionName === collectionNames.updates) {
           if (
             requestType === updateRequestTypes.clientUpdates ||
@@ -137,7 +124,6 @@ export async function getCollectionData({
             return {
               id: data.id,
               adminId: data.adminId,
-              clientId: data.clientId,
               projectId: data.projectId,
               location: data.location,
               text: data.text,
@@ -151,7 +137,6 @@ export async function getCollectionData({
             return {
               id: data.id,
               adminId: data.adminId,
-              clientId: data.clientId,
               location: data.location,
               projectId: data.projectId,
               text: data.text,

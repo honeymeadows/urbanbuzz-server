@@ -32,7 +32,11 @@ export async function updateDb(req, res) {
     //   response,
     // });
 
-    const response = (await admin.firestore().collection(collectionNames.users).get()).docs;
+    const response = await admin
+      .firestore()
+      .collection(collectionNames.updates)
+      .where("projectId", "in", [])
+      .get();
 
     return res.json({
       response,

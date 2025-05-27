@@ -26,8 +26,8 @@ export const getUpdateData = async ({ projectId }) => {
         project: {
           id: projectData.id,
           adminId: projectData.adminId,
-          clientId: projectData.clientId,
           clientIds: projectData.clientIds,
+          clientEmails: projectData.clientEmails,
           country: projectData.country,
           nickName: projectData.nickName.admin,
           name: projectData.name,
@@ -108,7 +108,6 @@ export const searchUpdates = async ({ searchedText }) => {
       updates.push({
         id: doc.data().id,
         adminId: doc.data().adminId,
-        clientId: doc.data().clientId,
         location: doc.data().location,
         projectId: doc.data().projectId,
         text: doc.data().text,

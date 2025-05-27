@@ -150,7 +150,8 @@ export async function getAllClientProjects({ clientId, projectRequestType, limit
       return {
         id: data.id,
         adminId: data.adminId,
-        clientId: data.clientId,
+        clientIds: data?.clientIds,
+        clientEmails: data?.clientEmails,
         location: data.location,
         nickName:
           projectRequestType === projectRequestTypes.clientProjects
