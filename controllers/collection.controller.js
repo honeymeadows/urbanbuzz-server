@@ -85,6 +85,7 @@ export async function getCollectionData({
             profileImage: data.profileImage,
             name: data.name,
             email: data.email,
+            isEmailNotification: data?.isEmailNotification ? true : false,
             joined: data.joined,
             invite: data.invite,
             roles: data.roles,

@@ -7,6 +7,7 @@ import { uploadToStorage } from "../services/storage/firebase.service.js";
 import axios from "axios";
 import { errorTypes } from "../resources/types/index.js";
 import { dashboardRequestTypes } from "../resources/types/requests/dashboard.js";
+import { toggleUserEmailNotification } from "../services/user.service.js";
 
 export async function updateUser(req, res) {
   const { userRequestType } = req.params;
@@ -54,6 +55,10 @@ export async function updateUser(req, res) {
     fetcherHandler = changePassword;
     args = { uid: userId, email, currentPassword, newPassword };
     responseName = "user";
+  } else if (userRequestType === userRequestTypes.toggleEmailNotification) {
+    fetcherHandler = toggleUserEmailNotification;
+    args = { userId };
+    responseName = "emailNotification";
   }
 
   if (!fetcherHandler || !responseName || !args) {

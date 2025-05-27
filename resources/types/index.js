@@ -29,6 +29,7 @@ export const emailTypes = {
   clientInvitation: "client-invitation",
   adminInvitation: "admin-invitation",
   adminAssigned: "admin-assigned",
+  projectCreate: "project-create",
   projectUpdate: "project-update",
 };
 export const updateTypes = {

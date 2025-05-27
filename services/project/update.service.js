@@ -46,26 +46,18 @@ export const getUpdateData = async ({ projectId }) => {
     return { error };
   }
 };
-export const getClientUpdateData = async ({ projectId, clientId }) => {
+export const getClientUpdateData = async ({ projectId }) => {
   try {
-    const clientData = (
-      await admin.firestore().collection(collectionNames.users).doc(clientId).get()
-    ).data();
     const projectData = (
       await admin.firestore().collection(collectionNames.projects).doc(projectId).get()
     ).data();
 
     return {
       data: {
-        client: {
-          id: clientData.id,
-          name: clientData.name,
-          profileImage: clientData.profileImage,
-        },
         project: {
           id: projectData.id,
           adminId: projectData.adminId,
-          clientId: projectData.clientId,
+          clientIds: projectData.clientIds,
           country: projectData.country,
           nickName: projectData.nickName.client,
           name: projectData.name,
@@ -134,3 +126,93 @@ export const searchUpdates = async ({ searchedText }) => {
     return { error };
   }
 };
+export const getClientProjectUpdates = async ({ clientId, startAfter, limit }) => {
+  if (!clientId) {
+    return { error: "invalid-request" };
+  }
+  let query = admin.firestore().collection(collectionNames.updates);
+  if (startAfter && startAfter !== "undefined") {
+    const lastDoc = await admin
+      .firestore()
+      .collection(collectionNames.updates)
+      .doc(startAfter)
+      .get();
+    query = query.startAfter(lastDoc);
+  }
+  if (limit && limit !== "undefined") {
+    query = query.limit(limit);
+  }
+  try {
+    const projectIds = (
+      await admin
+        .firestore()
+        .collection(collectionNames.projects)
+        .where("clientIds", "array-contains", clientId)
+        .get()
+    ).docs.map((doc) => doc.id);
+
+    if (!projectIds?.length) {
+      return [];
+    }
+
+    let response = (
+      await query
+        .where("projectId", "in", projectIds)
+        .where("statuses.isDeactivated", "==", false)
+        .where("statuses.isDeleted", "==", false)
+        .orderBy("created", "desc")
+        .get()
+    ).docs;
+
+    response = response.map((doc) => {
+      const data = doc.data();
+      return {
+        id: data.id,
+        adminId: data.adminId,
+        projectId: data.projectId,
+        location: data.location,
+        text: data.text,
+        images: data.images,
+        comments: data.comments,
+        statuses: data.statuses,
+        updated: data.updated.toDate().getTime(),
+        created: data.created.toDate().getTime(),
+      };
+    });
+
+    response = { data: response, startAfter: response[response.length - 1]?.id };
+
+    return response;
+  } catch (error) {
+    console.log("getClientProjectUpdates ====>", error);
+    return { error };
+  }
+};
+export async function getUpdatesCount({ clientId }) {
+  if (!clientId) {
+    return { error: "invalid-request" };
+  }
+  try {
+    const projectIds = (
+      await admin
+        .firestore()
+        .collection(collectionNames.projects)
+        .where("clientIds", "array-contains", clientId)
+        .get()
+    ).docs.map((doc) => doc.id);
+    const total = (
+      await admin
+        .firestore()
+        .collection(collectionNames.updates)
+        .where("projectId", "in", projectIds)
+        .where("statuses.isDeactivated", "==", false)
+        .where("statuses.isDeleted", "==", false)
+        .count()
+        .get()
+    ).data().count;
+    return total;
+  } catch (error) {
+    console.log("getUpdatesCount ======>", error);
+    return { error };
+  }
+}

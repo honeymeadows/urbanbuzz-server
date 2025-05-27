@@ -6,8 +6,6 @@ import axios from "axios";
 export async function getlocationImage(req, res) {
   const { lat, lon, size, scale, zoom } = req.query;
 
-  console.log(req.query);
-
   const imageUrl = `https://maps.googleapis.com/maps/api/staticmap?center=${encodeURIComponent(
     `${lat},${lon}`
   )}&zoom=${zoom && zoom !== "undefined" ? zoom : 16}&size=${

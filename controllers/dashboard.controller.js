@@ -6,7 +6,11 @@ import { getAllClientProjects, getClientProjectData } from "../services/project/
 import { uploadToStorage } from "../services/storage/firebase.service.js";
 import { updateRequestTypes } from "../resources/types/requests/update.js";
 import { getCollectionData } from "./collection.controller.js";
-import { getClientUpdateData } from "../services/project/update.service.js";
+import {
+  getClientProjectUpdates,
+  getClientUpdateData,
+  getUpdatesCount,
+} from "../services/project/update.service.js";
 
 export async function getClientProjects(req, res) {
   const { projectRequestType } = req.params;
@@ -129,33 +133,15 @@ export async function getClientUpdates(req, res) {
   let responseName = null; // String name to use in store
   let limit = Number(req.query.limit);
   let startAfter = req.query.startAfter === "null" ? null : req.query.startAfter;
+  let total = 0;
 
   if (updateRequestType === updateRequestTypes.clientUpdates) {
     args = {
-      collectionName: collectionNames.updates,
-      sort: {
-        field: "created",
-        direction: "desc",
-      },
-
-      pagination: { limit, startAfter: startAfter ?? null },
-
-      primaryFilter: { field: "clientId", operator: "==", value: req.user.uid },
-      secondaryFilter: {
-        field: "statuses.isDeactivated",
-        operator: "==",
-        value: false,
-      },
-      tertiaryFilter: {
-        field: "statuses.isDeleted",
-        operator: "==",
-        value: false,
-      },
-      isInitial: initial,
-      requestType: updateRequestType,
+      clientId: req.user.uid,
+      startAfter: startAfter ?? null,
+      limit,
     };
-
-    fetcherHandler = getCollectionData;
+    fetcherHandler = getClientProjectUpdates;
     responseName = "updates";
   } else if (updateRequestType === updateRequestTypes.clientUpdateData) {
     if (projectId === "undefined") {
@@ -163,7 +149,7 @@ export async function getClientUpdates(req, res) {
     }
 
     fetcherHandler = getClientUpdateData;
-    args = { projectId, clientId: req.user.uid };
+    args = { projectId };
     responseName = "updateData";
   } else if (updateRequestType === updateRequestTypes.clientProjectUpdates) {
     if (projectId === "undefined") {
@@ -187,6 +173,9 @@ export async function getClientUpdates(req, res) {
   }
 
   const result = await fetcherHandler(args);
+  if (initial) {
+    total = await getUpdatesCount(args);
+  }
   if (result?.error) {
     return res.status(400).json(result?.error);
   } else {
@@ -195,8 +184,8 @@ export async function getClientUpdates(req, res) {
       startAfter: result?.startAfter,
     };
 
-    if (result?.total !== null) {
-      response = { ...response, total: result?.total };
+    if (total) {
+      response = { ...response, total };
     }
     return res.json(response);
   }

@@ -1,4 +1,4 @@
-export const projectUpdate = ({ project }) => {
+export const projectCreate = ({ project }) => {
   return `<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <meta content="text/html; charset=UTF-8" http-equiv="Content-Type" />
 <html dir="ltr" lang="en">
@@ -111,11 +111,11 @@ export const projectUpdate = ({ project }) => {
                 color: rgb(0, 0, 0);
               "
             >
-              Your Project Has a New Update
+              Project Created
             </h1>
             <p style="font-size: 14px; line-height: 24px; margin: 16px 0; color: rgb(0, 0, 0)">
-              A Honey Meadows admin has logged an update to your project
-              <strong>${project?.name}</strong>. click the following button to see the update.
+              A Honey Meadows admin has created a new project <strong>${project?.name}</strong> with
+              you. Click the following button to visit your project.
             </p>
             <table
               align="center"
@@ -130,7 +130,7 @@ export const projectUpdate = ({ project }) => {
                 <tr>
                   <td>
                     <a
-                      href="https://app.honeymeadows.ca/dashboard/projects/${project?.id}"
+                      href="https://app.honeymeadows.ca/admin/projects/${project?.id}"
                       style="
                         border-radius: 0.25rem;
                         background-color: #3c53e4;

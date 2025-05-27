@@ -15,4 +15,5 @@ export const dashboardRequestTypes = {
   updateClientProjectNickName: "update-client-project-nick-name",
   updateClientProfileImage: "update-client-profile-image",
   updateClientPassword: "update-client-password",
+  toggleEmailNotification: "toggle-email-notification",
 };

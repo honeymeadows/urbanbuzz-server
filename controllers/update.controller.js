@@ -253,7 +253,7 @@ export async function createUpdate(req, res) {
       const update = (await updateRef.get()).data();
 
       if (emailNotification && projectData?.clientEmails?.length) {
-        await sendEmail({
+        const emailRes = await sendEmail({
           email: projectData.clientEmails,
           emailType: emailTypes.projectUpdate,
           emailData: {

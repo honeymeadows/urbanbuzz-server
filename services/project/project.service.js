@@ -119,7 +119,7 @@ export async function getAllProjectsList({ limit, startAfter }) {
   }
 }
 export async function getAllClientProjects({ clientId, projectRequestType, limit, startAfter }) {
-  if (clientId) {
+  if (!clientId) {
     return { error: "client-id-require" };
   }
   let response = [];
@@ -227,10 +227,22 @@ export const getAllTypeProjectCounts = async () => {
 };
 
 export const getClientProjectData = async ({ projectId }) => {
-  const projectData = (
-    await admin.firestore().collection(collectionNames.projects).doc(projectId).get()
-  ).data();
   try {
+    const projectData = (
+      await admin.firestore().collection(collectionNames.projects).doc(projectId).get()
+    ).data();
+    const clients = (
+      await admin
+        .firestore()
+        .collection(collectionNames.users)
+        .where("id", "in", projectData.clientIds)
+        .get()
+    ).docs.map((doc) => ({
+      id: doc.id,
+      name: doc.data()?.name,
+      email: doc.data()?.email,
+      profileImage: doc.data()?.profileImage,
+    }));
     const updatesCount = (
       await admin
         .firestore()
@@ -245,8 +257,9 @@ export const getClientProjectData = async ({ projectId }) => {
         project: {
           name: projectData.name,
           id: projectData.id,
+          clients,
           location: projectData.location,
-          clientId: projectData.clientId,
+          clientIds: projectData.clientIds,
           nickName: projectData.nickName.client,
         },
         updates: updatesCount,

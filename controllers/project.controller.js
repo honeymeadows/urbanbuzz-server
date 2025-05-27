@@ -3,7 +3,7 @@
 import { projectRequestTypes } from "../resources/types/requests/project.js";
 // utils
 import { collectionNames, admin, adminInstance } from "../config/firebase.js";
-import { createNotification } from "./notification.controller.js";
+import { createNotification, createNotifications } from "./notification.controller.js";
 import { getArrayFromString } from "../utils/index.js";
 import { notificationTypes } from "../resources/types/notification.js";
 import {
@@ -14,6 +14,8 @@ import {
   getProjectsCount,
 } from "../services/project/project.service.js";
 import { populateRefs } from "../services/user.service.js";
+import { emailTypes } from "../resources/types/index.js";
+import sendEmail from "../services/email.servce.js";
 
 export async function getProjects(req, res) {
   const { projectRequestType } = req.params;
@@ -100,6 +102,8 @@ export async function getProjects(req, res) {
     let response = {
       [responseName]: result.data,
       startAfter: result?.startAfter,
+      projectRequestType,
+      sortBy: sortField,
     };
 
     if (total) {
@@ -114,8 +118,8 @@ export async function createProject(req, res) {
   const {
     projectId,
     note,
-    clientId,
-    clientName,
+    clientIds,
+    clientEmails,
     country,
     countryCode,
     placeId,
@@ -137,13 +141,9 @@ export async function createProject(req, res) {
   ).data();
 
   if (projectRequestType === projectRequestTypes.createProject) {
-    if (!clientId || !clientName || !country || !countryCode || !address || !city || !postalCode) {
+    if (!country || !countryCode || !address || !city || !postalCode) {
       return res.status(400).json({ message: "Invalid project body" });
     }
-
-    const clientData = (
-      await admin.firestore().collection(collectionNames.users).doc(clientId).get()
-    ).data();
 
     const nickName = createNickName(address);
 
@@ -152,8 +152,8 @@ export async function createProject(req, res) {
       await projectRef.create({
         id: projectRef.id,
         adminId,
-        clientId,
-        clientName,
+        clientIds: clientIds?.length ? clientIds : [],
+        clientEmails: clientEmails?.length ? clientEmails : [],
         country,
         nickName: {
           admin: nickName,
@@ -175,7 +175,6 @@ export async function createProject(req, res) {
         searchKeywords: [
           ...new Set([
             ...getArrayFromString(nickName)
-              .concat(getArrayFromString(clientName))
               .concat(getArrayFromString(address))
               .concat(getArrayFromString(city))
               .concat(getArrayFromString(country)),
@@ -196,13 +195,13 @@ export async function createProject(req, res) {
       });
       const project = (await projectRef.get()).data();
 
-      await createNotification({
+      await createNotifications({
         sender: {
           id: adminData?.id,
           name: adminData?.name,
           profileimage: adminData?.profileImage?.url,
         },
-        receiver: { id: project?.clientId },
+        receivers: project?.clientIds,
         project: {
           id: project.id,
           name: project.name,
@@ -210,16 +209,20 @@ export async function createProject(req, res) {
         },
         type: notificationTypes.projectCreated,
       });
+      await sendEmail({
+        email: project.clientEmails,
+        emailType: emailTypes.projectCreate,
+        emailData: {
+          project,
+        },
+      });
 
       return res.json({
         project: {
           ...project,
           nickName: project?.nickName?.admin,
-          client: {
-            id: clientData.id,
-            name: clientData.name,
-            profileImage: clientData.profileImage,
-          },
+          clientIds: clientIds?.length ? clientIds : [],
+          clientEmails: clientEmails?.length ? clientEmails : [],
           isNew: true,
           created: project?.created?.toDate().getTime(),
           updated: project?.created?.toDate().getTime(),
@@ -294,8 +297,8 @@ export async function updateProject(req, res) {
   if (projectRequestType === projectRequestTypes.updateProject) {
     await admin.firestore().runTransaction(async (transaction) => {
       const data = {
-        clientId: newData?.clientId ?? project.data().clientId,
-        clientName: newData?.clientName ?? project.data().clientName,
+        clientIds: newData?.clientIds?.length ? newData?.clientIds : [],
+        clientEmails: newData?.clientEmails?.length ? newData?.clientEmails : [],
         name: newData?.address ?? project.data().name,
         location: {
           placeId: newData?.placeId ?? null,

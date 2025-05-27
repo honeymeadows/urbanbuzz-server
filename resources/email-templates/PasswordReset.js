@@ -68,7 +68,7 @@ export const passwordResetEmailTemplate = ({ email, name, resetUrl }) => {
                     <img
                       alt="Vercel"
                       height="auto"
-                      src="https://firebasestorage.googleapis.com/v0/b/urbanbuzz-bcfbd.appspot.com/o/static%2Flogo-text-horizontal.jpg?alt=media&token=774a6f55-67b8-4287-8441-f80c3b918efd"
+                      src="https://app.honeymeadows.ca/images/logo-text-horizontal.jpg"
                       style="
                         display: block;
                         outline: none;

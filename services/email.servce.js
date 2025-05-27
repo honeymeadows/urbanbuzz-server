@@ -6,12 +6,13 @@ import { emailTypes } from "../resources/types/index.js";
 import { Resend } from "resend";
 import "dotenv/config";
 import { projectUpdate } from "../resources/email-templates/projectUpdate.js";
+import { projectCreate } from "../resources/email-templates/projectCreate.js";
 
 const sendEmail = async ({ emailType, email, emailData }) => {
   const resend = new Resend(`${process.env.RESEND_API_KEY}`);
   return resend.emails.send({
     from: "Honey Meadows <admin@app.honeymeadows.ca>",
-    to: [email],
+    to: email,
     reply_to: "connect@bitechx.com",
     ...generateEmailContent(emailType, { ...emailData, email }),
   });
@@ -55,6 +56,14 @@ const generateEmailContent = (emailType, emailData) => {
         email,
       }),
       subject: "Admin Invitation",
+    };
+  } else if (emailType === emailTypes.projectCreate) {
+    return {
+      text: "Project Created",
+      html: projectCreate({
+        project,
+      }),
+      subject: "Project Created",
     };
   } else if (emailType === emailTypes.projectUpdate) {
     return {

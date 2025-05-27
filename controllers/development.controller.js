@@ -32,13 +32,8 @@ export async function updateDb(req, res) {
     //   response,
     // });
 
-    const response = await sendEmail({
-      email: "bzs.siam@gmail.com",
-      emailType: emailTypes.clientInvitation,
-      emailData: {
-        url: "nviteData.url",
-      },
-    });
+    const response = (await admin.firestore().collection(collectionNames.users).get()).docs;
+
     return res.json({
       response,
     });
@@ -59,7 +54,6 @@ const uploadBufferToStorage = async (fileName, bufferData, type) => {
       },
     },
   });
-  console.log({ response });
 
   return file;
 };
@@ -68,7 +62,6 @@ const getMetadata = async (fileName) => {
   const file = bucket.file(fileName);
 
   const [metadata] = await file.getMetadata();
-  console.log({ metadata });
   return metadata;
 };
 
