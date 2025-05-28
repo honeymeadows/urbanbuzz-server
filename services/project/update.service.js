@@ -82,7 +82,6 @@ export const getNewCommentsCount = async ({ adminId }) => {
     const updates = await admin
       .firestore()
       .collection(collectionNames.updates)
-      .where("adminId", "==", adminId)
       .where("isAdminReplied", "==", false)
       .get();
 

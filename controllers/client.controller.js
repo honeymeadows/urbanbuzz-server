@@ -123,17 +123,25 @@ export async function updateClients(req, res) {
         },
       });
       const userAuthData = await admin.auth().getUserByEmail(userData.data().email);
-      await admin.auth().setCustomUserClaims(clientId, {
-        ...userAuthData.customClaims,
-        statuses: {
-          isBanned: newData?.isBanned ?? userData.data().statuses.isBanned,
-          isDeleted: newData?.isDeleted ?? userData.data().statuses.isDeleted,
-        },
-        roles: {
-          ...userAuthData.customClaims.roles,
-          isClient: typeof newData?.isDeleted === "boolean" ? !newData?.isDeleted : true,
-        },
-      });
+      if (newData?.isDeleted ?? userData.data().statuses.isDeleted) {
+        admin
+          .auth()
+          .deleteUser(userAuthData.uid)
+          .then((res) => {})
+          .catch((err) => {});
+      } else {
+        await admin.auth().setCustomUserClaims(clientId, {
+          ...userAuthData.customClaims,
+          statuses: {
+            isBanned: newData?.isBanned ?? userData.data().statuses.isBanned,
+            isDeleted: newData?.isDeleted ?? userData.data().statuses.isDeleted,
+          },
+          roles: {
+            ...userAuthData.customClaims.roles,
+            isClient: typeof newData?.isDeleted === "boolean" ? !newData?.isDeleted : true,
+          },
+        });
+      }
 
       userData = (await userRef.get()).data();
       return res.send({ user: userData });
@@ -179,6 +187,7 @@ const searchClients = async ({ searchedText }) => {
       .firestore()
       .collection(collectionNames.users)
       .where("roles.isClient", "==", true)
+      .where("roles.isAdmin", "==", false)
       .where("statuses.isBanned", "==", false)
       .where("statuses.isDeleted", "==", false)
       .where("searchKeywords", "array-contains", searchedText.toLowerCase())

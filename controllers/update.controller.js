@@ -257,6 +257,7 @@ export async function createUpdate(req, res) {
           emailType: emailTypes.projectUpdate,
           emailData: {
             project: projectData,
+            update: { ...update, created: update?.created?.toDate() },
           },
         });
       }

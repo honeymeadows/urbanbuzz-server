@@ -19,7 +19,7 @@ const sendEmail = async ({ emailType, email, emailData }) => {
 };
 
 const generateEmailContent = (emailType, emailData) => {
-  const { name, email, url, token, project } = emailData;
+  const { name, email, url, token, project, update } = emailData;
   const baseUrl = process.env.APP_DOMAIN;
   if (emailType === emailTypes.passwordReset) {
     return {
@@ -59,19 +59,20 @@ const generateEmailContent = (emailType, emailData) => {
     };
   } else if (emailType === emailTypes.projectCreate) {
     return {
-      text: "Project Created",
+      text: "",
       html: projectCreate({
         project,
       }),
-      subject: "Project Created",
+      subject: `${project?.name} Project Created`,
     };
   } else if (emailType === emailTypes.projectUpdate) {
     return {
-      text: "Project Update",
+      text: "",
       html: projectUpdate({
         project,
+        update,
       }),
-      subject: "Project Update",
+      subject: `${project?.nickName?.client} Project`,
     };
   }
 };

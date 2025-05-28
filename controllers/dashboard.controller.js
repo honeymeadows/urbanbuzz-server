@@ -245,7 +245,7 @@ export async function createClientUpdateComment(req, res) {
         }
 
         transaction.update(updateRef, {
-          isAdminReplied: true,
+          isAdminReplied: false,
           lastCommentByClientOn: new Date().getTime(),
           comments:
             updateData.data()?.comments?.length > 0

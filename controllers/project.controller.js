@@ -145,7 +145,9 @@ export async function createProject(req, res) {
       return res.status(400).json({ message: "Invalid project body" });
     }
 
-    const nickName = createNickName(address);
+    const nickName = createNickName(address)
+      ? createNickName(address)
+      : createNickName(`${city} ${country}`);
 
     try {
       const projectRef = admin.firestore().collection(collectionNames.projects).doc();
@@ -213,7 +215,7 @@ export async function createProject(req, res) {
         email: project.clientEmails,
         emailType: emailTypes.projectCreate,
         emailData: {
-          project,
+          project: { ...project, created: project?.created?.toDate() },
         },
       });
 
@@ -257,6 +259,7 @@ export async function createProject(req, res) {
       return res.json({
         project: {
           ...project,
+          nickName: project?.nickName?.admin,
           created: project?.created?.toDate().getTime(),
           updated: project?.created?.toDate().getTime(),
         },

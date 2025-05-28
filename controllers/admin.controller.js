@@ -77,10 +77,11 @@ export async function deleteAdmins(req, res) {
         .getUserByEmail(doc.data()?.email)
         .then((user) => user)
         .catch((err) => false);
+
       if (!doc.exists || !user) {
         return res.status(400).json({ message: "User does not exist" });
       } else {
-        user = await admin.auth().setCustomUserClaims(user.uid, {
+        await admin.auth().setCustomUserClaims(user.uid, {
           ...user.customClaims,
           roles: {
             ...user.customClaims.roles,

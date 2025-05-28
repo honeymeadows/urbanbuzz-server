@@ -32,11 +32,20 @@ export async function updateDb(req, res) {
     //   response,
     // });
 
-    const response = await admin
-      .firestore()
-      .collection(collectionNames.updates)
-      .where("projectId", "in", [])
-      .get();
+    const update = (
+      await admin.firestore().collection(collectionNames.updates).doc("Cu326sK73p5MZ7CIAdAR").get()
+    ).data();
+    const project = (
+      await admin.firestore().collection(collectionNames.projects).doc("lJZHuABRE05tAegTg09l").get()
+    ).data();
+
+    const response = await sendEmail({
+      email: "bzs.siam@gmail.com",
+      emailType: emailTypes.projectCreate,
+      emailData: {
+        project: { ...project, created: project.created.toDate() },
+      },
+    });
 
     return res.json({
       response,

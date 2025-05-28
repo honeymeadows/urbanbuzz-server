@@ -105,6 +105,7 @@ export async function getAllProjectsList({ limit, startAfter }) {
           clients: data.clients,
           location: data.location,
           nickName: data.nickName.admin,
+          notes: data.notes,
           name: data.name,
         };
       })
